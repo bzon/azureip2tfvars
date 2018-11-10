@@ -1,2 +1,4 @@
 *.tf
 .terraform/*
+bin/
+azure2tfvarsip*

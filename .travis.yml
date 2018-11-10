@@ -1,0 +1,33 @@
+language: go
+
+branches:
+  only:
+  - master
+  - /^v.*$/
+
+go:
+  - "1.11.x"
+
+sudo: false
+
+install:
+  - go get github.com/golang/lint/golint
+  - golint -set_exit_status ./...
+  - make dep
+
+# script:
+#   # Code coverage and testing
+#   - make coverage
+#   - bash <(curl -s https://codecov.io/bash)
+
+deploy:
+  provider: releases
+  api_key: $GITHUB_OAUTH_TOKEN
+  file:
+    - ./bin/azureip2tfvars-darwin-amd64
+    - ./bin/azureip2tfvars-linux-amd64
+    - ./bin/azureip2tfvars-windows-amd64.exe
+  skip_cleanup: true
+  on:
+    tags: true
+

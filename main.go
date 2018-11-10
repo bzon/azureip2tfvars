@@ -19,7 +19,46 @@ var (
 	filepath *string
 )
 
-const azureDownloadLink = "https://www.microsoft.com/en-gb/download/confirmation.aspx?id=41653"
+const (
+	azureDownloadLink = "https://www.microsoft.com/en-gb/download/confirmation.aspx?id=41653"
+	tftempl           = `
+{{- range . }}
+variable "azure_{{.Name}}_subnets" {
+    type = "list"
+    default = [
+    {{- range .IPRanges }}
+    "{{ .Subnet }}",
+    {{- end}}
+    ]
+}
+{{end}}`
+)
+
+// AzureIP holds the struct for parsing the following XML format
+//
+//  <?xml version="1.0" encoding="utf-8"?>
+//  <AzurePublicIpAddresses xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+//    <Region Name="australiac2">
+//      <IpRange Subnet="20.36.64.0/19" />
+//      ....
+//    </Region>
+//  </AzurePublicIpAddresses>
+//
+type AzureIP struct {
+	XMLName xml.Name `xml:"AzurePublicIpAddresses"`
+	Regions []Region `xml:"Region"`
+}
+
+// Region is the Region field inside AzurePublicIpAddresess
+type Region struct {
+	Name     string    `xml:"Name,attr"`
+	IPRanges []IPRange `xml:"IpRange"`
+}
+
+// IPRange is the IpRange field inside Region
+type IPRange struct {
+	Subnet string `xml:"Subnet,attr"`
+}
 
 func main() {
 	filepath = flag.String("writeto", "./azure_tfvars.tf", "The terraform file to write to. (default: ./azure_tfvars.tf)")
@@ -92,53 +131,4 @@ func (azip *AzureIP) createTfFile() error {
 		return fmt.Errorf("Error: failed templating azip: %+v", err)
 	}
 	return nil
-}
-
-const tftempl = `
-{{- range . }}
-variable "azure_{{.Name}}_subnets" {
-    type = "list"
-    default = [
-    {{- range .IPRanges }}
-    "{{ .Subnet }}",
-    {{- end}}
-    ]
-}
-{{end}}
-`
-
-// AzureIP holds the struct for parsing the following XML format
-//
-//  <?xml version="1.0" encoding="utf-8"?>
-//  <AzurePublicIpAddresses xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-//    <Region Name="australiac2">
-//      <IpRange Subnet="20.36.64.0/19" />
-//      <IpRange Subnet="20.36.112.0/20" />
-//      <IpRange Subnet="20.39.72.0/21" />
-//      <IpRange Subnet="20.39.96.0/19" />
-//      <IpRange Subnet="40.82.12.0/22" />
-//      <IpRange Subnet="40.82.244.0/22" />
-//      <IpRange Subnet="40.90.130.32/28" />
-//      <IpRange Subnet="40.90.142.64/27" />
-//      <IpRange Subnet="40.90.149.32/27" />
-//      <IpRange Subnet="40.126.128.0/18" />
-//      <IpRange Subnet="52.143.218.0/24" />
-//      <IpRange Subnet="52.239.218.0/23" />
-//    </Region>
-//  </AzurePublicIpAddresses>
-//
-type AzureIP struct {
-	XMLName xml.Name `xml:"AzurePublicIpAddresses"`
-	Regions []Region `xml:"Region"`
-}
-
-// Region is the Region field inside AzurePublicIpAddresess
-type Region struct {
-	Name     string    `xml:"Name,attr"`
-	IPRanges []IPRange `xml:"IpRange"`
-}
-
-// IPRange is the IpRange field inside Region
-type IPRange struct {
-	Subnet string `xml:"Subnet,attr"`
 }
