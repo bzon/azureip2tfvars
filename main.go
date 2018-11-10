@@ -115,10 +115,7 @@ func downloadAndParseAzureXML() error {
 	if err := xml.Unmarshal(bs, ipList); err != nil {
 		return fmt.Errorf("Error: unmarshalling XML to AzureIP struct: %+v", err)
 	}
-	if err := ipList.createTfFile(); err != nil {
-		return err
-	}
-	return nil
+	return ipList.createTfFile()
 }
 
 func (azip *AzureIP) createTfFile() error {

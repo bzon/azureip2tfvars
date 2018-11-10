@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/bzon/azureip2tfvars.svg?branch=master)](https://travis-ci.org/bzon/azureip2tfvars)
+[![Go Report Card](https://goreportcard.com/badge/github.com/bzon/azureip2tfvars)](https://goreportcard.com/report/github.com/bzon/azureip2tfvars)
+
 ## Synopsis
 
 If your team is using Azure services like Bots that calls some APIs from your server, 
@@ -14,20 +17,34 @@ Terraform variables file out of it. We use Terraform to create AWS security grou
 
 ## Quickstart
 
-**WIP DOWNLOAD GUIDE AND RELEASES**
+Download the latest binary for your Operating System from the [releases page](https://github.com/bzon/azureip2tfvars/releases/) and place it to your preferred directory or folder.
 
-Download the binary for your platform and just run it. No dependencies required!
+**From the command line terminal**
 
 ```bash
-./azureip2tfvars -writeto /tmp/vars.tf
+# for linux or macos
+export PATH=$PATH:/directory/of/the/binary
 
+azureip2tfvars -writeto /tmp/vars.tf
+```
+
+```bash
+# for windows
+SET PATH=%PATH%;C:\directory\of\the\binary
+
+azureip2tfvars.exe -writeto /tmp/vars.tf
+```
+
+**Command example output**
+
+```bash
 ⡿ Download url is: https://download.microsoft.com/download/0/1/8/018E208D-54F8-44CD-AA26-CD7BC9524A8C/PublicIPs_20181107.xml
 Terraform file "/tmp/vars.tf" successfully created!
 ```
 
-Example output
+**Terraform file**
 
-```terraform
+```go
 ...
 
 variable "azure_indiawest_subnets" {
